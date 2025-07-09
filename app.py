@@ -79,25 +79,45 @@ if opcion == "Cp a una temperatura":
     st.markdown(f"**Resultado antes de conversión:** Cp = {cp_kmol:.4f} kJ/kmol·K")
     st.markdown(f"**Resultado final:** Cp = {cp_kg:.4f} kJ/kg·K")
 
-elif opcion == "ΔU entre dos temperaturas":
-    T1_celsius = st.number_input("Temperatura inicial (°C):", value=25.0)
-    T2_celsius = st.number_input("Temperatura final (°C):", value=100.0)
-    T1_kelvin = T1_celsius + 273.15
-    T2_kelvin = T2_celsius + 273.15
+elif opcion == "2":
+    st.markdown("### Fórmula: ∫ Cp dT  −  RΔT")
+    st.markdown("Constante universal de los gases (R): 8.314 kJ/kmol·K")
 
-    delta_u_kmol = calcular_delta_u(
-        datos["a"], datos["b"], datos["c"], datos["d"],
-        T1_kelvin, T2_kelvin, 8.314
-    )
-    delta_u_kg = delta_u_kmol / datos["M"]
+    R_universal = 8.314
+    R = R_universal / M
+    st.markdown(f"R para esta sustancia: {R_universal} / {M} = {R:.4f} kJ/kg·K")
 
-    st.markdown(f"**Conversión:** T1 = {T1_celsius} °C = {T1_kelvin:.2f} K | T2 = {T2_celsius} °C = {T2_kelvin:.2f} K")
-    st.markdown(f"**Resultado sin conversión:** ΔU = {delta_u_kmol:.4f} kJ/kmol")
-    st.markdown(f"**Resultado final:** ΔU = {delta_u_kg:.4f} kJ/kg")
+    T1_C = st.number_input("Ingresa la temperatura inicial (°C):", format="%.2f", key="T1")
+    T2_C = st.number_input("Ingresa la temperatura final (°C):", format="%.2f", key="T2")
 
-    if delta_u_kg > 0:
-        st.success("Interpretación: El sistema se calentó (ΔU positivo)")
-    elif delta_u_kg < 0:
-        st.warning("Interpretación: El sistema se enfrió (ΔU negativo)")
-    else:
-        st.info("Interpretación: No hubo cambio de energía interna (ΔU = 0)")
+    if st.button("Calcular ΔU y ΔH"):
+        # Conversión de temperaturas
+        T1 = T1_C + 273.15
+        T2 = T2_C + 273.15
+        deltaT = T2 - T1
+
+        st.markdown(f"Conversión: T₁ = {T1_C:.1f} °C = {T1:.2f} K   |   T₂ = {T2_C:.1f} °C = {T2:.2f} K")
+        st.markdown(f"ΔT = {deltaT:.2f} K")
+
+        # Cálculo de ΔH (sin R)
+        deltaH_kJ_kmol = (
+            a * deltaT +
+            (b / 2) * (T2**2 - T1**2) +
+            (c / 3) * (T2**3 - T1**3) +
+            (d / 4) * (T2**4 - T1**4)
+        )
+        deltaH_kJ_kg = deltaH_kJ_kmol / M
+
+        # Cálculo de ΔU = ΔH - RΔT
+        deltaU_kJ_kmol = deltaH_kJ_kmol - R_universal * deltaT
+        deltaU_kJ_kg = deltaU_kJ_kmol / M
+
+        st.markdown("### Resultados:")
+        st.markdown(f"Reemplazo ΔH: ΔH = {a}({deltaT}) + {b}/2({T2}² - {T1}²) + {c}/3({T2}³ - {T1}³) + {d}/4({T2}⁴ - {T1}⁴)")
+        st.markdown(f"Resultado ΔH: ΔH = {deltaH_kJ_kmol:.4f} kJ/kmol → {deltaH_kJ_kg:.4f} kJ/kg")
+
+        st.markdown(f"Reemplazo ΔU: ΔU = ΔH - RΔT = {deltaH_kJ_kmol:.4f} - {R:.4f}({deltaT:.2f})")
+        st.markdown(f"Resultado ΔU: ΔU = {deltaU_kJ_kmol:.4f} kJ/kmol → {deltaU_kJ_kg:.4f} kJ/kg")
+
+        interpretacion = "El sistema se calentó (ΔU positivo)" if deltaU_kJ_kg > 0 else "El sistema se enfrió (ΔU negativo)"
+        st.markdown(f"Interpretación: {interpretacion}")
