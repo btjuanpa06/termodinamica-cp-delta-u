@@ -78,3 +78,26 @@ if opcion == "Cp a una temperatura":
     st.markdown(f"**Conversión:** T = {T_celsius} °C = {T_kelvin:.2f} K")
     st.markdown(f"**Resultado antes de conversión:** Cp = {cp_kmol:.4f} kJ/kmol·K")
     st.markdown(f"**Resultado final:** Cp = {cp_kg:.4f} kJ/kg·K")
+
+elif opcion == "ΔU entre dos temperaturas":
+    T1_celsius = st.number_input("Temperatura inicial (°C):", value=25.0)
+    T2_celsius = st.number_input("Temperatura final (°C):", value=100.0)
+    T1_kelvin = T1_celsius + 273.15
+    T2_kelvin = T2_celsius + 273.15
+
+    delta_u_kmol = calcular_delta_u(
+        datos["a"], datos["b"], datos["c"], datos["d"],
+        T1_kelvin, T2_kelvin, 8.314
+    )
+    delta_u_kg = delta_u_kmol / datos["M"]
+
+    st.markdown(f"**Conversión:** T1 = {T1_celsius} °C = {T1_kelvin:.2f} K | T2 = {T2_celsius} °C = {T2_kelvin:.2f} K")
+    st.markdown(f"**Resultado sin conversión:** ΔU = {delta_u_kmol:.4f} kJ/kmol")
+    st.markdown(f"**Resultado final:** ΔU = {delta_u_kg:.4f} kJ/kg")
+
+    if delta_u_kg > 0:
+        st.success("Interpretación: El sistema se calentó (ΔU positivo)")
+    elif delta_u_kg < 0:
+        st.warning("Interpretación: El sistema se enfrió (ΔU negativo)")
+    else:
+        st.info("Interpretación: No hubo cambio de energía interna (ΔU = 0)")
